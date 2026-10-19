@@ -1,0 +1,241 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background: transparent;
+  overflow-x: hidden;
+}
+
+.slider-container {
+  max-width: 1200px;
+  margin: 0 auto 50px;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.slider-wrapper {
+  position: relative;
+  padding: 0 60px;
+}
+
+.slider-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* 컨테이너: 고정 비율 제거 및 CSS Grid 적용 */
+.width-slider .main-image-container,
+.height-slider .main-image-container {
+  display: grid;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 auto 20px;
+  touch-action: pan-y;
+}
+
+/* 메인 이미지: absolute 제거, 높이 자동화, 한 Grid 칸에 모두 겹치기 */
+.width-slider .main-image,
+.height-slider .main-image {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: auto; 
+  object-fit: contain; 
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.width-slider .main-image.active,
+.height-slider .main-image.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.arrow-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.3s;
+}
+
+.arrow-button:hover {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.slider-wrapper .arrow-button.prev {
+  left: 0;
+}
+
+.slider-wrapper .arrow-button.next {
+  right: 0;
+}
+
+.thumbnails-container {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 10px 0;
+  scrollbar-width: thin;
+}
+
+.thumbnails-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.thumbnails-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.thumbnails-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.thumbnails-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* 가로형 썸네일 */
+.width-slider .thumbnail {
+  width: 120px;
+  height: 80px;
+  object-fit: contain;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+
+/* 세로형 썸네일 */
+.height-slider .thumbnail {
+  width: 60px;
+  height: 100px;
+  object-fit: contain;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: all 0.3s;
+  flex-shrink: 0;
+}
+
+.thumbnail:hover {
+  transform: scale(1.05);
+  border-color: #ddd;
+}
+
+.thumbnail.active {
+  border-color: #007bff;
+  box-shadow: 0 0 10px rgba(0,123,255,0.3);
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+/* 모바일 최적화 (768px 이하) */
+@media (max-width: 768px) {
+  body {
+    padding: 5px;
+  }
+
+  .slider-container {
+    padding: 8px;
+    margin: 0 auto 20px;
+    max-width: 100%;
+  }
+
+  .slider-wrapper {
+    padding: 0 35px;
+  }
+
+  .width-slider .slider-wrapper {
+    padding: 0 32px;
+  }
+
+  .arrow-button {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+
+  .width-slider .thumbnail {
+    width: 90px;
+    height: 60px;
+  }
+
+  .height-slider .thumbnail {
+    width: 50px;
+    height: 83px;
+  }
+}
+
+/* 작은 모바일 최적화 (480px 이하) */
+@media (max-width: 480px) {
+  body {
+    padding: 2px;
+  }
+
+  .slider-container {
+    padding: 4px;
+    margin: 0 auto 15px;
+    border-radius: 5px;
+  }
+
+  .slider-wrapper {
+    padding: 0 30px;
+  }
+
+  .width-slider .slider-wrapper {
+    padding: 0 26px;
+  }
+
+  .arrow-button {
+    width: 26px;
+    height: 26px;
+    font-size: 14px;
+  }
+
+  .width-slider .thumbnail {
+    width: 70px;
+    height: 47px;
+  }
+
+  .height-slider .thumbnail {
+    width: 45px;
+    height: 75px;
+  }
+
+  .thumbnails-container {
+    gap: 6px;
+    padding: 8px 0;
+  }
+}

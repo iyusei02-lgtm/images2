@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Height Image Slider</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .height-slider .main-image {
+      object-fit: contain !important;
+    }
+    .height-slider .thumbnail {
+      object-fit: contain !important;
+      background-color: #f8f9fa !important; 
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slider-container height-slider">
+    <div class="slider-wrapper">
+      <button type="button" class="arrow-button prev" onclick="changeImage('height', -1)">‹</button>
+      <button type="button" class="arrow-button next" onclick="changeImage('height', 1)">›</button>
+      <div class="main-image-container" id="height-image-container">
+      </div>
+    </div>
+    <div class="thumbnails-container" id="height-thumbnails"></div>
+  </div>
+  
+  <script>
+    const sliders = {
+      height: { currentIndex: 0, images: [] }
+    };
+    
+    function createSlider(type, imageUrls) {
+      if (!imageUrls || imageUrls.length === 0) {
+        document.querySelector(`.${type}-slider`).innerHTML = '<div class="loading">이미지가 없습니다.</div>';
+        return sendHeight();
+      }
+    
+      sliders[type].images = imageUrls;
+      sliders[type].currentIndex = 0;
+    
+      const imageContainer = document.getElementById(`${type}-image-container`);
+      const thumbnailsContainer = document.getElementById(`${type}-thumbnails`);
+      imageContainer.innerHTML = '';
+      thumbnailsContainer.innerHTML = '';
+    
+      imageUrls.forEach((url, index) => {
+        const isActive = index === 0 ? 'active' : '';
+    
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = `main-image ${isActive}`;
+        img.alt = `${type} image ${index + 1}`;
+        imageContainer.appendChild(img);
+    
+        const thumbnail = document.createElement('img');
+        thumbnail.src = url;
+        thumbnail.className = `thumbnail ${isActive}`;
+        thumbnail.alt = `${type} thumbnail ${index + 1}`;
+        
+        thumbnail.onclick = () => goToImage(type, index);
+        
+        thumbnailsContainer.appendChild(thumbnail);
+      });
+    
+      setupTouchEvents(type, imageContainer);
+    
+      const firstImage = imageContainer.querySelector('.main-image');
+      if (firstImage) firstImage.onload = sendHeight;
+    }
+    
+    function setupTouchEvents(type, container) {
+      let startX = 0, startY = 0;
+    
+      container.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }, { passive: true });
+    
+      container.addEventListener('touchend', (e) => {
+        const diffX = startX - e.changedTouches[0].clientX;
+        const diffY = startY - e.changedTouches[0].clientY;
+    
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+          changeImage(type, diffX > 0 ? 1 : -1);
+        }
+      }, { passive: true });
+    }
+    
+    function changeImage(type, direction) {
+      const slider = sliders[type];
+      const total = slider.images.length;
+      if (!total) return;
+    
+      slider.currentIndex = (slider.currentIndex + direction + total) % total;
+      updateSlider(type);
+    }
+    
+    function goToImage(type, index) {
+      sliders[type].currentIndex = index;
+      updateSlider(type);
+    }
+    
+    function updateSlider(type) {
+      const currentIndex = sliders[type].currentIndex;
+    
+      // 메인 이미지 활성화
+      document.querySelectorAll(`#${type}-image-container .main-image`).forEach((img, index) => {
+        img.classList.toggle('active', index === currentIndex);
+      });
+    
+      // 썸네일 활성화
+      document.querySelectorAll(`#${type}-thumbnails .thumbnail`).forEach((thumbnail, index) => {
+        thumbnail.classList.toggle('active', index === currentIndex);
+      });
+    }
+    
+    function sendHeight() {
+      window.parent.postMessage({ height: document.body.scrollHeight }, '*');
+    }
+    
+    function initSliderData(type, fileName) {
+      fetch(`https://iyusei02-lgtm.github.io/images/data/${fileName}.json`)
+        .then(res => res.json())
+        .then(imageUrls => {
+          imageUrls.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+          createSlider(type, imageUrls);
+        })
+        .catch(error => {
+          console.error(`Error loading ${type} images:`, error);
+          document.querySelector(`.${type}-slider`).innerHTML = '<div class="loading">이미지를 불러오는 중 오류가 발생했습니다.</div>';
+          sendHeight();
+        });
+    }
+    
+    initSliderData('height', 'virtual_illustration_height');
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') changeImage('height', -1);
+      if (e.key === 'ArrowRight') changeImage('height', 1);
+    });
+    
+    ['resize', 'load'].forEach(event => window.addEventListener(event, sendHeight));
+  </script>
+
+</body>
+</html>
